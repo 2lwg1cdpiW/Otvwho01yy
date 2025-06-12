@@ -518,6 +518,28 @@ function library:CreateWindow(name, keycode)
 				SectorFrame.Size = UDim2.new(1, -10, 0, ItemsList.AbsoluteContentSize.Y + 10)
 			end)
 			
+			function sector:AddLabel(text)
+				local labelchange = { }
+
+                local label = Instance.new("TextLabel")
+                label.Name = "Label"
+                label.BackgroundTransparency = 1
+                label.Font = Enum.Font.Code
+                label.Text = text
+                label.TextColor3 = Color3.fromRGB(255,255,255)
+                label.Size = UDim2.new(1,0,0,14)
+                label.TextScaled = true
+                label.TextStrokeTransparency = 1
+                label.TextXAlignment = Enum.TextXAlignment.Left
+                label.Parent = SectorItems
+                
+                function labelchange:Set(value)
+                    label.Text = value
+                end
+                
+                return labelchange
+			end
+			
 			function sector:AddButton(ButtonSettings)
 				local Button = Instance.new("TextLabel")
 				Button.Name = ButtonSettings.Name or "Button"
