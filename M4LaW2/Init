@@ -99,14 +99,143 @@ local whitelistedBoxKeys = {
     Enum.KeyCode.Nine
 }
 
+local gui = Instance.new("ScreenGui")
+gui.Name = "markk"
+protectUI(gui)
+
+local notificationHandler = Instance.new("Frame")
+notificationHandler.Name = "Notification"
+notificationHandler.Size = UDim2.new(0, 200, 0, 200)
+notificationHandler.Position = UDim2.new(1, -200, 0, 0)
+notificationHandler.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+notificationHandler.BorderColor3 = Color3.fromRGB(0, 0, 0)
+notificationHandler.BorderSizePixel = 1
+notificationHandler.Active = false
+notificationHandler.BackgroundTransparency = 1
+notificationHandler.Parent = gui
+
+local listing = Instance.new("UIListLayout")
+listing.Padding = UDim.new(0, 6)
+listing.HorizontalAlignment = Enum.HorizontalAlignment.Center
+listing.SortOrder = Enum.SortOrder.LayoutOrder
+listing.VerticalAlignment = Enum.VerticalAlignment.Bottom
+listing.Parent = notificationHandler
+
+function library:CreateNotify(title, desc, duration, rgb)
+	task.spawn(function()
+		rgb = rgb or false
+		local rotationSpeed = 0.05 -- Adjust this value for faster/slower rotation (lower = faster)
+	
+		local NotifyHolder = Instance.new("Frame")
+		NotifyHolder.Size = UDim2.new(0, 146, 0, 64)
+		NotifyHolder.Position = UDim2.new(0, 10, 0, 10)
+		NotifyHolder.Active = true
+		NotifyHolder.BackgroundTransparency = 1
+		NotifyHolder.Parent = notificationHandler
+	
+		local Notify = Instance.new("ImageButton")
+		Notify.Name = "Notify"
+		Notify.Position = UDim2.new(1, 0, 0, 0)
+		Notify.Size = UDim2.new(0, 146, 0, 64)
+		Notify.BackgroundColor3 = Color3.fromRGB(40,40,40)
+		Notify.ImageColor3 = Color3.fromRGB(255, 255, 255)
+		Notify.Image = "rbxassetid://123456789"
+		Notify.ImageTransparency = 1
+		Notify.ScaleType = Enum.ScaleType.Stretch
+		Notify.BackgroundTransparency = 0
+		Notify.Parent = NotifyHolder
+	
+		local Corner = Instance.new("UICorner")
+		Corner.Name = "Corner"
+		Corner.CornerRadius = UDim.new(0, 4)
+		Corner.Parent = Notify
+	
+		local Title = Instance.new("TextLabel")
+		Title.Name = "Title"
+		Title.Size = UDim2.new(1, 0, 0, 26)
+		Title.Position = UDim2.new(0, 0, 0, 0)
+		Title.Text = title or "Label"
+		Title.BackgroundTransparency = 1
+		Title.TextColor3 = Color3.fromRGB(255,255,255)
+		Title.Font = Enum.Font.Code
+		Title.Parent = Notify
+		Title.TextXAlignment =Enum.TextXAlignment.Left 
+		Title.TextSize = 15
+	
+		local Padding = Instance.new("UIPadding")
+		Padding.Name = "Padding"
+		Padding.PaddingLeft = UDim.new(0, 5)
+		Padding.PaddingRight = UDim.new(0, 5)
+		Padding.Parent = Title
+	
+		local Content = Instance.new("TextLabel")
+		Content.Name = "Content"
+		Content.Size = UDim2.new(1, 0, 0, 44)
+		Content.Position = UDim2.new(0, 0, 0, 20)
+		Content.Text = desc or "Label"
+		Content.BackgroundTransparency = 1
+		Content.TextColor3 = Color3.fromRGB(100,100,100)
+		Content.Font = Enum.Font.Code
+		Content.Parent = Notify 
+		Content.TextXAlignment = Enum.TextXAlignment.Left 
+		Content.TextYAlignment = Enum.TextYAlignment.Top 
+		Content.TextSize = 13
+		Content.TextWrapped = true
+		Padding:Clone().Parent = Content
+	
+		local Stroke = Instance.new("UIStroke")
+		Stroke.Name = "Stroke"
+		Stroke.Thickness = 1.5
+		Stroke.Color = Color3.fromRGB(255,255,255)
+		Stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+		Stroke.Parent = Notify
+	
+		local Gradient = Instance.new("UIGradient")
+		Gradient.Rotation = 0
+		if rgb then
+			Gradient.Color = ColorSequence.new{
+				ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),
+				ColorSequenceKeypoint.new(0.17, Color3.fromRGB(255, 255, 0)),
+				ColorSequenceKeypoint.new(0.33, Color3.fromRGB(0, 255, 0)),
+				ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 255, 255)),
+				ColorSequenceKeypoint.new(0.67, Color3.fromRGB(0, 0, 255)),
+				ColorSequenceKeypoint.new(0.83, Color3.fromRGB(255, 0, 255)),
+				ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 0))
+			}
+		else
+			Gradient.Color = ColorSequence.new(
+				Color3.fromRGB(20,20,20), 
+				Color3.fromRGB(36,36,36)
+			)
+		end
+		Gradient.Parent = Stroke
+	
+		-- Rotation animation
+		task.spawn(function()
+			while Gradient.Parent do
+				for i = 0, 360, 1 do
+					Gradient.Rotation = i
+					task.wait(rotationSpeed)
+				end
+			end
+		end)
+	
+		tweenservice:Create(Notify, TweenInfo.new(.8, Enum.EasingStyle.Quint), {Position = UDim2.new(0, 0, 0, 0)}):Play()
+		task.wait(duration)
+		rotationSpeed = 0.5
+		task.wait(.4)
+		tweenservice:Create(Stroke, TweenInfo.new(.8, Enum.EasingStyle.Quint), {Transparency = 1}):Play()
+		task.wait(.55)
+		tweenservice:Create(Notify, TweenInfo.new(0.8, Enum.EasingStyle.Quint), {Position = UDim2.new(1, 0, 0, 0)}):Play()
+		task.wait(.5)
+		NotifyHolder:Destroy()
+	end)
+end
+
 function library:CreateWindow(name, keycode)
 	local window = {}
 	window.Name = name or ""
 	window.hidebutton = keycode or Enum.KeyCode.RightShift
-	
-	local gui = Instance.new("ScreenGui")
-	gui.Name = "markk"
-	protectUI(gui)
 
 	local Main = Instance.new("Frame")
 	Main.Name = "Main"
@@ -459,7 +588,7 @@ function library:CreateWindow(name, keycode)
 
 			local SectorFrame = Instance.new("Frame")
 			SectorFrame.Name = "SectorFrame"
-			SectorFrame.Size = UDim2.new(1, -10, 0, 10)
+			SectorFrame.Size = UDim2.new(1, -6, 0, 10)
 			SectorFrame.Position = UDim2.new(0, 10, 0, 10)
 			SectorFrame.BackgroundColor3 = Color3.fromRGB(36,36,36)
 			SectorFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
@@ -543,7 +672,7 @@ function library:CreateWindow(name, keycode)
 			function sector:AddButton(ButtonSettings)
 				local Button = Instance.new("TextLabel")
 				Button.Name = ButtonSettings.Name or "Button"
-				Button.Size = UDim2.new(1,0,0,32)
+				Button.Size = UDim2.new(1,0,0,30)
 				Button.Text = ButtonSettings.Name or "Hello World!"
 				Button.BackgroundTransparency = 1
 				Button.TextColor3 = Color3.fromRGB(255,255,255)
@@ -554,7 +683,7 @@ function library:CreateWindow(name, keycode)
 				
 				local Interaction = Instance.new("ImageButton")
 				Interaction.Name = "Interaction"
-				Interaction.Size = UDim2.new(1,-10,1,-8)
+				Interaction.Size = UDim2.new(1,-6,1,-3)
 				Interaction.Position = UDim2.new(0.5,0,0.5,0)
 				Interaction.AnchorPoint = Vector2.new(0.5,0.5)
 				Interaction.BackgroundColor3 = Color3.fromRGB(42,42,42)
@@ -640,20 +769,21 @@ function library:CreateWindow(name, keycode)
 				Round.Parent = RoundHolder 
 				CircledCorner:Clone().Parent = Round
 				
+				ToggleSettings.Value = ""
+				
 				function ToggleSettings:Set(value)		
 					ToggleSettings.CurrentValue = value
 					if value == true then
 						tweenservice:Create(Round, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, 2, 0, 2), BackgroundColor3 = Color3.fromRGB(251, 241, 199)}):Play()
 					else
 						tweenservice:Create(Round, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Position = UDim2.new(0, 2, 0, 2), BackgroundColor3 = Color3.fromRGB(60,60,60)}):Play()
-					end				
+					end
+					ToggleSettings.Value = value
 					if ToggleSettings.Flag and ToggleSettings.Flag ~= "" then
                         library.flags[ToggleSettings.Flag] = ToggleSettings.CurrentValue
                     end
 					pcall(ToggleSettings.Callback, ToggleSettings.CurrentValue)	
 				end
-				
-				ToggleSettings.Value = ""
 				
 				function ToggleSettings:Get() 
                     return ToggleSettings.Value
@@ -729,17 +859,17 @@ function library:CreateWindow(name, keycode)
 				if InputSettings.Flag and InputSettings.Flag ~= "" then
                     library.flags[InputSettings.Flag] = InputSettings.CurrentValue or ""
                 end
+                
+                InputSettings.Value = ""
 				
 				function InputSettings:Set(text)
-                    InputSettings.CurrentValue = text
+                    InputSettings.Value = text
                     InputBox.Text = text
                     if InputSettings.Flag and InputSettings.Flag ~= "" then
                         library.flags[InputSettings.Flag] = text
                     end
                     pcall(InputSettings.Callback, text)
                 end
-                
-                InputSettings.Value = ""
                 
                 function InputSettings:Get()
                     return InputSettings.Value
@@ -911,17 +1041,7 @@ function library:CreateWindow(name, keycode)
 				function DropdownSettings:Get()
                     return DropdownSettings.MultiChoice and DropdownSettings.Values or DropdownSettings.Values[1]
                 end
-				if DropdownSettings.CurrentValue then
-					if type(DropdownSettings.CurrentValue) == "string" then
-						DropdownSettings.CurrentValue = {DropdownSettings.CurrentValue}
-					end
-					if not DropdownSettings.MultiChoice and type(DropdownSettings.CurrentValue) == "table" then
-						DropdownSettings.CurrentValue = {DropdownSettings.CurrentValue[1]}
-					end
-				else
-					DropdownSettings.CurrentValue = {}
-				end
-			
+
 				function DropdownSettings:isSelected(item)
 	                for i, v in pairs(DropdownSettings.Values) do
 	                    if v == item then
@@ -1018,7 +1138,10 @@ function library:CreateWindow(name, keycode)
 					        end
 					        return
 					    else
+							tweenservice:Create(Accent, TweenInfo.new(0.25), {Size = UDim2.new(0, 2, 1, -20)}):Play()
 					        DropdownSettings:Set(v)
+							task.wait(.3)
+							tweenservice:Create(Accent, TweenInfo.new(0.25), {Size = UDim2.new(0, 2, 1, -14)}):Play()
 					        return
 					    end
 					end)
@@ -1072,7 +1195,7 @@ function library:CreateWindow(name, keycode)
 			function sector:AddSlider(SliderSettings)
 				local Slider = Instance.new("Frame")
 				Slider.Name = "Slider"
-				Slider.Size = UDim2.new(1, 0, 0, 32)
+				Slider.Size = UDim2.new(1, 0, 0, 30)
 				Slider.Active = true
 				Slider.BackgroundTransparency = 1
 				Slider.Parent = SectorItems
@@ -1107,7 +1230,7 @@ function library:CreateWindow(name, keycode)
 				
 				local Interaction = Instance.new("ImageButton")
 				Interaction.Name = "Interaction"
-				Interaction.Size = UDim2.new(1, -10, 0, 16)
+				Interaction.Size = UDim2.new(1, -10, 0, 14)
 				Interaction.Position = UDim2.new(0, 5, 0, 14)
 				Interaction.BackgroundColor3 = Color3.fromRGB(40,40,40)
 				Interaction.Active = true
@@ -1199,6 +1322,191 @@ end
 				table.insert(library.items, SliderSettings)
                 return SliderSettings
             end
+            
+            function sector:AddScrolling(ScrollSettings)
+            	local Frame = Instance.new("ImageButton")
+				Frame.Name = "Frame"
+				Frame.Size = UDim2.new(1, 0, 0, 60)
+				Frame.BackgroundColor3 = Color3.fromRGB(40,40,40)
+				Frame.Parent = SectorItems 
+				
+				local Corner = Instance.new("UICorner")
+				Corner.Name = "Corner"
+				Corner.CornerRadius = UDim.new(0, 6)
+				Corner.Parent = Frame
+				
+				local Stroke = Instance.new("UIStroke")
+				Stroke.Name = "Stroke"
+				Stroke.Thickness = 0.5
+				Stroke.Color = Color3.fromRGB(49,49,49)
+				Stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+				Stroke.Parent = Frame
+            
+            	local size = textservice:GetTextSize(ScrollSettings.Name, 13, Enum.Font.Code, Vector2.new(2000, 2000))
+	            local Title = Instance.new("TextLabel", Frame)
+	            Title.AnchorPoint = Vector2.new(0,0.5)
+	            Title.Position = UDim2.fromOffset(12, -1)
+	            Title.Size = UDim2.fromOffset(textservice:GetTextSize(ScrollSettings.Name, 13, Enum.Font.Code, Vector2.new(200,300)).X + 13, size.Y)
+	            Title.BackgroundTransparency = 1
+	            Title.Text = ScrollSettings.Name
+	            Title.TextColor3 = Color3.fromRGB(255,255,255)
+	            Title.TextStrokeTransparency = 1
+	            Title.Font = Enum.Font.Code
+	            Title.TextSize = 13
+	
+				local Scroll = Instance.new("ScrollingFrame")
+				Scroll.Name = "Scroll"
+				Scroll.Size = UDim2.new(1, 0, 1, 0)
+				Scroll.Position = UDim2.new(0, 0, 0, 0)
+				Scroll.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+				Scroll.BorderColor3 = Color3.fromRGB(0, 0, 0)
+				Scroll.ScrollBarThickness = 1
+				Scroll.ScrollingEnabled = true
+				Scroll.BackgroundTransparency = 1
+				Scroll.Parent = Frame
+				
+				Corner:Clone().Parent = Scroll
+				
+				local List = Instance.new("UIListLayout")
+				List.Name = "List"
+				List.SortOrder = Enum.SortOrder.LayoutOrder
+				List.Padding = UDim.new(0, 0)
+				List.HorizontalAlignment = Enum.HorizontalAlignment.Center
+				List.VerticalAlignment = Enum.VerticalAlignment.Top 
+				List.Parent = Scroll
+				
+				List:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+			        Scroll.CanvasSize = UDim2.new(0, 0, 0, List.AbsoluteContentSize.Y)
+			    end)
+			
+				ScrollSettings.Values = {}
+				ScrollSettings.Items = {}
+			
+				
+				if ScrollSettings.Flag and ScrollSettings.Flag ~= "" then
+                    library.flags[ScrollSettings.Flag] = ScrollSettings.MultiChoice and { ScrollSettings.CurrentValue or ScrollSettings.Choices[1] or "" } or (ScrollSettings.CurrentValue or ScrollSettings.Choices[1] or "")
+                end
+				function ScrollSettings:Get()
+                    return ScrollSettings.MultiChoice and ScrollSettings.Values or ScrollSettings.Values[1]
+                end
+				if ScrollSettings.CurrentValue then
+					if type(ScrollSettings.CurrentValue) == "string" then
+						ScrollSettings.CurrentValue = {ScrollSettings.CurrentValue}
+					end
+					if not ScrollSettings.MultiChoice and type(ScrollSettings.CurrentValue) == "table" then
+						ScrollSettings.CurrentValue = {ScrollSettings.CurrentValue[1]}
+					end
+				else
+					ScrollSettings.CurrentValue = {}
+				end
+			
+				function ScrollSettings:Get()
+                    return ScrollSettings.MultiChoice and ScrollSettings.Values or ScrollSettings.Values[1]
+                end
+                
+                function ScrollSettings:isSelected(item)
+	                for i, v in pairs(ScrollSettings.Values) do
+	                    if v == item then
+	                        return true
+	                    end
+	                end
+	                return false
+	            end
+	
+				function ScrollSettings:UpdateText(text)
+	                if #text >= 27 then
+	                    text = text:sub(1, 25) .. ".."
+	                end
+	                Title.Text = ScrollSettings.Name..":".. text
+	            end
+				
+				function ScrollSettings:GetOptions()
+	                return ScrollSettings.Values
+	            end
+					
+	            function ScrollSettings:Set(value)
+	                if type(value) == "table" then
+	                    ScrollSettings.Values = value
+						ScrollSettings:UpdateText(table.concat(value, ", "))
+	                    pcall(ScrollSettings.Callback, value)
+	                else
+	                    ScrollSettings.Values = { value }
+	ScrollSettings:UpdateText(value)
+	                    pcall(ScrollSettings.Callback, value)
+	                end
+					if ScrollSettings.Flag and ScrollSettings.Flag ~= "" then
+                        library.flags[ScrollSettings.Flag] = ScrollSettings.MultiChoice and ScrollSettings.Values or ScrollSettings.Values[1]
+                    end
+	            end
+				
+				function ScrollSettings:Add(v)			
+					local SelectTitle = Instance.new("TextButton")
+					SelectTitle.Name = "SelectTitle"
+					SelectTitle.Size = UDim2.new(1, 0, 0, 20)
+					SelectTitle.Position = UDim2.new(0, 0, 0, 0)
+					SelectTitle.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+					SelectTitle.BorderColor3 = Color3.fromRGB(0, 0, 0)
+					SelectTitle.BorderSizePixel = 0
+					SelectTitle.Text = v
+					SelectTitle.TextScaled = true
+					SelectTitle.BackgroundTransparency = 1
+					SelectTitle.TextColor3 = Color3.fromRGB(255,255,255)
+					SelectTitle.Font = Enum.Font.Code
+					SelectTitle.Parent = Scroll 
+					SelectTitle.TextSize = 14
+					SelectTitle.TextXAlignment = Enum.TextXAlignment.Left 
+				
+					local CircledCorner = Instance.new("UICorner")
+					CircledCorner.Name = "CircledCorner"
+					CircledCorner.CornerRadius = UDim.new(0, 10)
+					CircledCorner.Parent = SelectTitle 
+					
+					SelectTitle.MouseButton1Click:Connect(function()
+						if ScrollSettings.MultiChoice then
+					        if ScrollSettings:isSelected(v) then
+					            for i2, v2 in pairs(ScrollSettings.Values) do
+					                if v2 == v then
+					                    table.remove(ScrollSettings.Values, i2)
+					                end
+					            end
+					            ScrollSettings:Set(ScrollSettings.Values)
+					        else
+					            table.insert(ScrollSettings.Values, v)
+					            ScrollSettings:Set(ScrollSettings.Values)
+					        end
+					        return
+					    else
+					        ScrollSettings:Set(v)
+					        return
+					    end
+					end)
+				    table.insert(ScrollSettings.Items, v)
+				end
+				
+				function ScrollSettings:Remove(value)
+	                local item = Scroll:FindFirstChild(value)
+	                if item then
+	                    for i,v in pairs(ScrollSettings.Items) do
+	                        if v == value then
+	                            table.remove(ScrollSettings.Items, i)
+	                        end
+	                    end
+	                    item:Remove()
+	                end
+	            end 
+			
+				for i,v in pairs(ScrollSettings.Choices) do
+                    ScrollSettings:Add(v)
+                end
+
+                if ScrollSettings.CurrentValue then
+                    ScrollSettings:Set(ScrollSettings.CurrentValue)
+                end
+                
+				table.insert(library.items, ScrollSettings)
+				return ScrollSettings
+			end
+            
 			return sector
 		end
 		
@@ -1223,14 +1531,14 @@ end
 			})
 			
             local default = tostring(listfiles(configSystem.configFolder)[1] or ""):gsub(configSystem.configFolder .. "\\", ""):gsub(".txt", "")
-            local Config = configSystem.sector:AddDropdown({
-			    Name = "Configs",
-			    Choices = {},
-			    CurrentValue = "",
-				MultiChoice = true,
-			    Callback = function()
-			    end,
-			    Flag = ""
+			local Config = configSystem.sector:AddDropdown({
+				Name = "Dropdown",
+				CurrentValue = default,
+				Choices = {},
+				MultiChoice = false,
+				Callback = function()
+				end,
+				Flag = ""
 			})
 			
             for i,v in pairs(listfiles(configSystem.configFolder)) do
